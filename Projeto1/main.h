@@ -103,7 +103,7 @@ void TeclasEspeciais(int key, int x, int y)
 	compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
 	compression_params.push_back(100);
 	    try {
-        imwrite("alpha.jpeg", mat, compression_params);
+        imwrite("output.jpeg", mat, compression_params);
 	//imwrite("saida.jpeg",mat);
     }
     catch (runtime_error& ex) {
