@@ -6,10 +6,8 @@
 
 unsigned char * FBptr;
 unsigned char * IMGptr;
-float * tmp = NULL;
+
 int option = 0;
-double _me=0;
-double _ma=255;
 
 
 #endif // _DEFINITIONS_H_

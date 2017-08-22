@@ -24,12 +24,27 @@ if(a<=b)return a;
 else return b;
 }
 
+void ab(int v){
+int tmp=0;
+int x,y,offset;
+for(x=0;x<IMAGE_WIDTH;x++){
+for(y=0;y<IMAGE_HEIGHT;y++){
+int offset = 4*x + 4*y*IMAGE_WIDTH;
+tmp=FBptr[offset+3]+v;
+if (tmp>255) tmp=255;
+if (tmp<0) tmp=0;
+IMGptr[offset+3]=(unsigned char)tmp;
+
+}
+}
+}
+
 void ajusta_negativo(unsigned char v){
 unsigned char tmp=0;
 int x,y,offset;
 for(x=0;x<IMAGE_WIDTH;x++){
 for(y=0;y<IMAGE_HEIGHT;y++){
-int offset = 3*x + 3*y*IMAGE_WIDTH;
+int offset = 4*x + 4*y*IMAGE_WIDTH;
 tmp=IMGptr[offset+0]+v;
 if (tmp>255) tmp=255;
 if (tmp<0) tmp=0;
@@ -48,62 +63,6 @@ IMGptr[offset+2]=tmp;
  
 }
 
-void ajusta_brilho(double mee,double maa){
-maa=_ma+maa;
-mee=_me+mee;
-if(mee>maa)mee--;
-if(mee<0)mee++;
-if(mee>255)mee--;
-
-if(maa<mee)maa++;
-if(maa>255)maa--;
-if(maa<0)mee++;
-
-double me=mee;
-double ma=maa;
-
-unsigned char tmp=0;
-int x,y,offset;
-for(x=0;x<IMAGE_WIDTH;x++){
-for(y=0;y<IMAGE_HEIGHT;y++){
-int offset = 3*x + 3*y*IMAGE_WIDTH;
-
-//(valor-menor)/(maior-menor)=(_valor-_menor)/(_maior-_menor)
-float divisao=0.0;
-
-//tmp=(((float)IMGptr[offset+0]-_me/_ma-_me)*(ma-me))+me;
-
-divisao=(IMGptr[offset+0]-_me);
-divisao=divisao/(_ma-_me);
-divisao=round((divisao*(ma-me))+me);
-tmp=(unsigned char)divisao;
-if (tmp>255) tmp=255;
-if (tmp<0) tmp=0;
-IMGptr[offset+0]=tmp;
-//tmp=(((float)IMGptr[offset+1]-_me/_ma-_me)*(ma-me))+me;
-divisao=(IMGptr[offset+1]-_me);
-divisao=divisao/(_ma-_me);
-divisao=round((divisao*(ma-me))+me);
-tmp=(unsigned char)divisao;
-if (tmp>255) tmp=255;
-if (tmp<0) tmp=0;
-IMGptr[offset+1]=tmp;
-//tmp=(((float)IMGptr[offset+2]-_me/_ma-_me)*(ma-me))+me;
-divisao=(IMGptr[offset+2]-_me);
-divisao=divisao/(_ma-_me);
-divisao=round((divisao*(ma-me))+me);
-tmp=(unsigned char)divisao;
-if (tmp>255) tmp=255;
-if (tmp<0) tmp=0;
-IMGptr[offset+2]=tmp;
-
-}
-}
-
-_ma=ma;
-_me=me;
-
-}
 
 //
 //========================= classes ============================
@@ -191,155 +150,152 @@ FBptr[offset + 2] = blue;
 FBptr[offset + 3] = alfa;
 }
 
-cor GetPixelColor(int x,int y){
-cor c;
-int offset = 3*x+3*y*IMAGE_WIDTH;
-unsigned char r = IMGptr[offset+0];
-unsigned char g = IMGptr[offset+1];
-unsigned char b = IMGptr[offset+2];
-c.set_color(r,g,b,255);
-return c;
-}
 
-void PrintPixelColor(int x,int y){
-int offset = 3*x+3*y*IMAGE_WIDTH;
-cout << "A cor do pixel("<<x<<","<<y<<"), eh: ";
-cout << "r:" << IMGptr[offset+0] << " ";
-cout << "g:" << IMGptr[offset+1] << " ";
-cout << "b:" << IMGptr[offset+2] << endl;
-}
+int ni=4;
 
 void PutPixel2(ponto p0)
 {
 int _x = p0.get_x();
 int _y = p0.get_y();
-int offset2 = 3*_x+3*_y*IMAGE_WIDTH;
-unsigned char red =  IMGptr[offset2+0];
-unsigned char green = IMGptr[offset2+1];
-unsigned char blue =  IMGptr[offset2+2];
-unsigned char alfa = 255;
+int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
+double red =  IMGptr[offset2+0];
+double green = IMGptr[offset2+1];
+double blue =  IMGptr[offset2+2];
+double alfa = IMGptr[offset2+3];
 //cout<<endl<<red<<","<<green<<","<<blue;
-_y=_y*(-1);
-_y=_y+511;//espelhando a imagem
-if(_x>27) _x=_x-28;
-else	_x=_x+483;
+//_y=_y*(-1);
+//_y=_y+511;//espelhando a imagem
+//if(_x>27) _x=_x-28;
+//else	_x=_x+483;
+//NovaCorNaTela = CorDoObjeto * AlfaDoObjeto + CorAntigaNaTele * (1-AlfaDoObjeto)
+//red = red+(red*(255-alfa))/255;
+//green = green+(green*(255-alfa))/255;//ajuste de brilho a partir do alfa
+//blue = blue+(blue*(255-alfa))/255;
+
+//if(red>255)red=255;
+//if(red<0)red=0;
+//if(green>255)green=255;
+//if(green<0)green=0;
+//if(blue>255)blue=255;
+//if(blue<0)blue=0;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
-FBptr[offset + 0] = red;
-FBptr[offset + 1] = green;
-FBptr[offset + 2] = blue;
-FBptr[offset + 3] = alfa;
+FBptr[offset + 0] = (unsigned char)red;
+FBptr[offset + 1] = (unsigned char)green;
+FBptr[offset + 2] = (unsigned char)blue;
+FBptr[offset + 3] = (unsigned char)alfa;
 }
 
 void PutPixelRed(ponto p0)
 {
 int _x = p0.get_x();
 int _y = p0.get_y();
-int offset2 = 3*_x+3*_y*IMAGE_WIDTH;
+int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
 unsigned char red =  IMGptr[offset2+0];
-unsigned char green = IMGptr[offset2+1];
-unsigned char blue =  IMGptr[offset2+2];
-unsigned char alfa = 255;
+//unsigned char green = IMGptr[offset2+1];
+//unsigned char blue =  IMGptr[offset2+2];
+unsigned char alfa = IMGptr[offset2+3];
 //cout<<endl<<red<<","<<green<<","<<blue;
-_y=_y*(-1);
-_y=_y+511;//espelhando a imagem
-if(_x>27) _x=_x-28;
-else	_x=_x+483;
+//_y=_y*(-1);
+//_y=_y+511;//espelhando a imagem
+//if(_x>27) _x=_x-28;
+//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = red;
 FBptr[offset + 1] = 0;
 FBptr[offset + 2] = 0;
-FBptr[offset + 3] = 255;
+FBptr[offset + 3] = alfa;
 }
 
 void PutPixelGreen(ponto p0)
 {
 int _x = p0.get_x();
 int _y = p0.get_y();
-int offset2 = 3*_x+3*_y*IMAGE_WIDTH;
-unsigned char red =  IMGptr[offset2+0];
+int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
+//unsigned char red =  IMGptr[offset2+0];
 unsigned char green = IMGptr[offset2+1];
-unsigned char blue =  IMGptr[offset2+2];
-unsigned char alfa = 255;
+//unsigned char blue =  IMGptr[offset2+2];
+unsigned char alfa = IMGptr[offset2+3];
 //cout<<endl<<red<<","<<green<<","<<blue;
-_y=_y*(-1);
-_y=_y+511;//espelhando a imagem
-if(_x>27) _x=_x-28;
-else	_x=_x+483;
+//_y=_y*(-1);
+//_y=_y+511;//espelhando a imagem
+//if(_x>27) _x=_x-28;
+//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = 0;
 FBptr[offset + 1] = green;
 FBptr[offset + 2] = 0;
-FBptr[offset + 3] = 255;
+FBptr[offset + 3] = alfa;
 }
 
 void PutPixelBlue(ponto p0)
 {
 int _x = p0.get_x();
 int _y = p0.get_y();
-int offset2 = 3*_x+3*_y*IMAGE_WIDTH;
-unsigned char red =  IMGptr[offset2+0];
-unsigned char green = IMGptr[offset2+1];
+int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
+//unsigned char red =  IMGptr[offset2+0];
+//unsigned char green = IMGptr[offset2+1];
 unsigned char blue =  IMGptr[offset2+2];
-unsigned char alfa = 255;
+unsigned char alfa = IMGptr[offset2+3];
 //cout<<endl<<red<<","<<green<<","<<blue;
-_y=_y*(-1);
-_y=_y+511;//espelhando a imagem
-if(_x>27) _x=_x-28;
-else	_x=_x+483;
+//_y=_y*(-1);
+//_y=_y+511;//espelhando a imagem
+//if(_x>27) _x=_x-28;
+//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = 0;
 FBptr[offset + 1] = 0;
 FBptr[offset + 2] = blue;
-FBptr[offset + 3] = 255;
+FBptr[offset + 3] = alfa;
 }
+
 
 void PutPixelGrayScale(ponto p0)
 {
 int _x = p0.get_x();
 int _y = p0.get_y();
-int offset2 = 3*_x+3*_y*IMAGE_WIDTH;
+int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
 unsigned char red =  IMGptr[offset2+0];
 unsigned char green = IMGptr[offset2+1];
 unsigned char blue =  IMGptr[offset2+2];
-unsigned char alfa = 255;
+unsigned char alfa = IMGptr[offset2+3];
 unsigned char gs=floor((float)(red+green+blue)/3);
 //cout<<endl<<red<<","<<green<<","<<blue;
-_y=_y*(-1);
-_y=_y+511;//espelhando a imagem
-if(_x>27) _x=_x-28;
-else	_x=_x+483;
+//_y=_y*(-1);
+//_y=_y+511;//espelhando a imagem
+//if(_x>27) _x=_x-28;
+//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = gs;
 FBptr[offset + 1] = gs;
 FBptr[offset + 2] = gs;
-FBptr[offset + 3] = 255;
+FBptr[offset + 3] = alfa;
 }
 
 void PutPixelNegativo(ponto p0)
 {
 int _x = p0.get_x();
 int _y = p0.get_y();
-int offset2 = 3*_x+3*_y*IMAGE_WIDTH;
+int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
 unsigned char red =   255 - IMGptr[offset2+0];
 unsigned char green = 255 - IMGptr[offset2+1];
 unsigned char blue =  255 - IMGptr[offset2+2];
-unsigned char alfa = 255;
+unsigned char alfa = IMGptr[offset2+3];
 //cout<<endl<<red<<","<<green<<","<<blue;
-_y=_y*(-1);
-_y=_y+511;//espelhando a imagem
-if(_x>27) _x=_x-28;
-else	_x=_x+483;
+//_y=_y*(-1);
+//_y=_y+511;//espelhando a imagem
+//if(_x>27) _x=_x-28;
+//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = red;
 FBptr[offset + 1] = green;
 FBptr[offset + 2] = blue;
-FBptr[offset + 3] = 255;
+FBptr[offset + 3] = alfa;
 }
 
 void DrawTela(){

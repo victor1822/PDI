@@ -1,3 +1,4 @@
-#como usa OpenGL e OpenCV, precisa instalar os dois e passar esses parametros no terminal para poder compilar o codigo corretamente:
-$g++ main.cpp -o out -lGL -lGLU -lglut -I /usr/local/include/opencv -L /usr/local/lib -lm -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect
+$ g++ main.cpp -o out -lGL -lGLU -lglut
 $ ./out
+#se usar opencv:
+$g++ main.cpp -o out -lGL -lGLU -lglut -I /usr/local/include/opencv -L /usr/local/lib -lm -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_objdetect

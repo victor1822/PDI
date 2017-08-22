@@ -36,75 +36,27 @@ void TeclasEspeciais(int key, int x, int y)
 		option++; if(option>5) option=0;
                break; 
 
+
 	case GLUT_KEY_F1:
-	//me++;
-	 cout<<"me++"<<endl;
-	//if(me>255)me=255;
-	//if(me>ma)me--;
-	ajusta_brilho(1,0);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
-	break;
-
-	case GLUT_KEY_F2:
-	//me--; 
-	cout<<"me--"<<endl;
-	//if(me<0)me=0;
-	ajusta_brilho(-1,0);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
-	break;
-
-	case GLUT_KEY_F3:
-	//ma++;
-	cout<<"ma++"<<endl;
-	//if(ma>255)ma=255;
-	ajusta_brilho(0,1);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
-	break;
-
-	case GLUT_KEY_F4:
-	//ma--; 
-	cout<<"ma--"<<endl;
-	//if(ma<0)ma=0;
-	//if(ma<me)=ma++;
-	ajusta_brilho(0,-1);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
-	break;
-
-	case GLUT_KEY_F5:
-	//ma--&&me++;
-	cout<<"me++&&ma--";
-	ajusta_brilho(1,-1);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
-	break;
-	
-	case GLUT_KEY_F6:
-	//ma--&&me++;
-	cout<<"me--&&ma++";
-	ajusta_brilho(-1,1);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
-	break;
-
-	case GLUT_KEY_F7:
-	cout<<"me--&&ma--";
-	ajusta_brilho(-1,-1);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
-	break;
-
-	case GLUT_KEY_F8:
-	cout<<"me++&&ma++";
-	ajusta_brilho(1,1);
-	cout<<"me:"<<(int)_me<<" ma:"<<(int)_ma<<endl;
+	cout<<"brilho-- ";
+	ab(-1);
+	cout<<"brilho:"<<(int)FBptr[3]<<endl;
 	break;
  
-	case GLUT_KEY_F9:
+	case GLUT_KEY_F2:
+	cout<<"brilho++ ";
+	ab(1);
+	cout<<"brilho:"<<(int)FBptr[3]<<endl;
+	break;
+ 
+	case GLUT_KEY_F3:
 	Mat mat(512, 512, CV_8UC4);
 	createAlphaMat(mat);
 	vector<int> compression_params;
 	compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
-	compression_params.push_back(100);
+	compression_params.push_back(100);//qualidade da imagem entre 0 e 120
 	    try {
         imwrite("output.jpeg", mat, compression_params);
-	//imwrite("saida.jpeg",mat);
     }
     catch (runtime_error& ex) {
         fprintf(stderr, "Exception converting image to JPEG format: %s\n", ex.what());
@@ -133,7 +85,7 @@ void display(){
 	// Copia o framebuffer para a textura.
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, IMAGE_WIDTH, IMAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, FBptr);
-
+	
 	glEnable(GL_TEXTURE_2D);
 
 	// Desenha o quadrilátero com a textura mapeada
@@ -172,8 +124,8 @@ void exitprog(void){
 		delete [] FBptr;
 	if(!IMGptr)
 		delete [] IMGptr;
-	if(!tmp)
-		delete [] tmp;
+	//if(!tmp)
+	//	delete [] tmp;
 	std::clog << "Exiting...\n";
 }
 
@@ -185,6 +137,12 @@ void InitOpenGL(int *argc, char **argv)
 	glutInitWindowSize(IMAGE_WIDTH, IMAGE_HEIGHT);
 	glutInitWindowPosition(100,100);
 	glutCreateWindow("My OpenGL");
+	
+	//fundo pra o alfa fazer diferença
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+	glEnable( GL_BLEND ); 
+	glClearColor(0.0,0.0,0.0,0.0);
 
 	// Ajusta a projeção ortográfica.
 	glMatrixMode(GL_PROJECTION);
@@ -192,6 +150,7 @@ void InitOpenGL(int *argc, char **argv)
 	glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
 }
 
 //*****************************************************************************
@@ -206,14 +165,13 @@ void InitCallBacks(void)
 void InitDataStructures(void)
 {
 	// Aloca o framebuffer e inicializa suas posições com 0.
-	FBptr =  new unsigned char[IMAGE_WIDTH * IMAGE_HEIGHT * 5];
-	IMGptr = new unsigned char[IMAGE_WIDTH * IMAGE_HEIGHT * 3];
-	tmp = new float[IMAGE_WIDTH * IMAGE_HEIGHT * 3];
-	//char* filename = NULL;
-	//*filename = "img1.bpm"; 
-	char filename[]="img1.bpm";
-	IMGptr = readBMP(filename);
-	//tmp = (float)IMGptr;
+	int size = IMAGE_WIDTH * IMAGE_HEIGHT;
+	FBptr =  new unsigned char[size * 4];
+	IMGptr = new unsigned char[size * 4];  
+
+	IMGptr = readBMP();
+
+	//if(IMGptr!=FBptr)cout<<"true"<<endl;
 	
 	for (unsigned int i = 0; i < IMAGE_WIDTH * IMAGE_HEIGHT ; i++)
 	{

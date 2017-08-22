@@ -11,47 +11,44 @@ using namespace cv;
 using namespace std;
 
 void createAlphaMat(Mat &mat)
-{	//glRotated( 90, 0.0, 0.0, 1.0 );
+{	
 
     for (int i = 0; i < IMAGE_WIDTH; ++i) {
         for (int j = 0; j < IMAGE_HEIGHT; ++j) {
 
-            Vec4b& rgba = mat.at<Vec4b>(j,-(i-511));//-(j-511)
+            Vec4b& rgba = mat.at<Vec4b>(j,i);//-(j-511)
 			int offset= 4*i + 4*j*IMAGE_WIDTH;	
 		rgba[0] = saturate_cast<uchar>((float)FBptr[offset+2]);
 		rgba[1] = saturate_cast<uchar>((float)FBptr[offset+1]);
 		rgba[2] = saturate_cast<uchar>((float)FBptr[offset+0]);           
-		rgba[3] = saturate_cast<uchar>(255);
-		//j=j-511; j=j*(-1);
+		rgba[3] = saturate_cast<uchar>((float)FBptr[offset+3]);
+		
         }
     } 
 
 }
 
-unsigned char* readBMP(char* filename)
-{
-    int i;
-    FILE* f = fopen("img1.bmp", "rb");
-    unsigned char info[54];
-    fread(info, sizeof(unsigned char), 54, f); // read the 54-byte header
+unsigned char* readBMP(){
+    Mat image;
+	int offset;
+    image = imread( "img1.bmp", 1 );
+unsigned char*data = new unsigned char[4*IMAGE_WIDTH*IMAGE_HEIGHT];
+		
+  for (int i = 0; i < IMAGE_WIDTH; ++i) {
+        for (int j = 0; j < IMAGE_HEIGHT; ++j) {
+		offset=4*i+4*j*IMAGE_WIDTH;
+		Point3_<uchar>* p = image.ptr<Point3_<uchar> >(i,j);
 
-    // extract image height and width from header
-    int width = *(int*)&info[18];
-    int height = *(int*)&info[22];
-
-    int size = 3 * width * height;
-    unsigned char* data = new unsigned char[size]; // allocate 3 bytes per pixel
-    fread(data, sizeof(unsigned char), size, f); // read the rest of the data at once
-    fclose(f);
-
-    for(i = 0; i < size; i += 3)
-    {
-            unsigned char tmp = data[i];
-            data[i] = data[i+2];
-            data[i+2] = tmp;    //converter de rbg para rgb
-   }
-
-    return (unsigned char*)data;
+			int offset= 4*i + 4*j*IMAGE_WIDTH;	
+		data[offset+0]=(unsigned char)p->z;//red
+		data[offset+1]=(unsigned char)p->y;//green
+		data[offset+2]=(unsigned char)p->x;//blue
+		data[offset+3]=255;
+		
+		
+        }
+    }
+	return (unsigned char*)data;
 }
 
 #endif // BITMAPLOAD_HPP_INCLUDED
