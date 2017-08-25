@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
+
 using namespace cv;
 using namespace std;
 
@@ -12,6 +13,11 @@ using namespace std;
 #include "mygl.h"
 #include "bitmapload.hpp"
 #define GL_CLAMP_TO_EDGE 0x812F
+
+#define zero 0
+#define um 1
+#define dois 2
+#define tres 3 
 
 GLuint tex;
 
@@ -29,34 +35,60 @@ void TeclasEspeciais(int key, int x, int y)
 	      ajusta_negativo(-1); break; 
     	case GLUT_KEY_LEFT: 
               cout<<"left"<<endl;
-		option--; if(option<0) option=5;
+		option--; if(option<0) option=5;//altera valor da opção, para alterar o modo de exibição
                break; 
    	case GLUT_KEY_RIGHT:  
               cout<<"right"<<endl;
-		option++; if(option>5) option=0;
+		option++; if(option>5) option=0;//altera o valor da opção, para alterar o modo de exibição
                break; 
 
 
-	case GLUT_KEY_F1:
+	case GLUT_KEY_F1://diminui brilho somando o valor no canal alfa
 	cout<<"brilho-- ";
 	ab(-1);
 	cout<<"brilho:"<<(int)FBptr[3]<<endl;
 	break;
  
-	case GLUT_KEY_F2:
+	case GLUT_KEY_F2://aumenta brilho subtraindo o valor no canal alfa
 	cout<<"brilho++ ";
 	ab(1);
 	cout<<"brilho:"<<(int)FBptr[3]<<endl;
 	break;
+
+	case GLUT_KEY_F3://diminui brilho dividindo o valor no canal alfa por 2
+	cout<<"brilhom--(/) ";
+	abm(-1);
+	cout<<"brilho:"<<(int)FBptr[3]<<endl;
+	break;
  
-	case GLUT_KEY_F3:
+	case GLUT_KEY_F4://aumenta o brilho multiplicando o valor do canal por 2
+	cout<<"brilhom++(*) ";
+	abm(1);
+	cout<<"brilho:"<<(int)FBptr[3]<<endl;
+	break;
+ 
+	case GLUT_KEY_F5://salva a imagem normal, converte em yuv e salva com cada canal separado: Y,U e V
 	Mat mat(512, 512, CV_8UC4);
+	Mat matyuv(512, 512, CV_8UC4);
+	Mat maty(512, 512, CV_8UC4);
+	Mat matu(512, 512, CV_8UC4);
+	Mat matv(512, 512, CV_8UC4);
+	Mat inputImage(512, 512, CV_8UC4);
+
+//=========== 
+	
+    //Conver a imagem para o espaço de cor YCrCb e salva os resultados separados em arquivos distintos.
+
 	createAlphaMat(mat);
+	inputImage=mat.clone();
+
+	//Salva YUV
 	vector<int> compression_params;
 	compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
 	compression_params.push_back(100);//qualidade da imagem entre 0 e 120
+
 	    try {
-        imwrite("output.jpeg", mat, compression_params);
+        imwrite("yuv.jpeg", mat, compression_params);
     }
     catch (runtime_error& ex) {
         fprintf(stderr, "Exception converting image to JPEG format: %s\n", ex.what());
@@ -64,12 +96,98 @@ void TeclasEspeciais(int key, int x, int y)
     }
 
     fprintf(stdout, "Saved JPEG file with alpha data.\n");
-	cout<<"Arquivo Salvo";
-	break;
+	cout<<"Arquivo Salvo"<<endl;
 
-	//default:
-		//até agora nada
-	//	break;
+
+	Mat channel[3];
+
+	cvtColor(inputImage, inputImage, COLOR_BGR2YCrCb);
+	split(inputImage, channel);
+	//showChannels(channel, hsv_labels, std_values, COLOR_YCrCb2BGR);
+
+	Mat outputImage(512, 512, CV_8UC4);
+	Mat aux[3];
+
+//y
+		aux[0] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 1;
+		aux[1] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 127.5;
+		aux[2] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 127.5;
+		aux[0] = channel[0];  
+		// merge the channels back together
+		merge(aux, 3, outputImage);
+		// convert from output color space to BGR
+		cvtColor(outputImage, maty, COLOR_YCrCb2BGR);
+
+	    try {
+        imwrite("y.jpeg", maty, compression_params);
+    }
+    catch (runtime_error& ex) {
+        fprintf(stderr, "Exception converting image to JPEG format: %s\n", ex.what());
+        break;
+    }
+
+    fprintf(stdout, "Saved JPEG file with y data.\n");
+	cout<<"Arquivo y Salvo"<<endl;
+		//imshow("Y - Luminance (3-Channels)", outputImage);
+		
+			// show single-channel image
+			//outputImage = channel[0];
+			//imshow("Y - Luminance (1-Channel)", outputImage);
+
+//u
+		aux[0] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 127.5;
+		aux[1] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 1;
+		aux[2] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 127.5;
+		aux[1] = channel[1];  
+		// merge the channels back together
+		merge(aux, 3, outputImage);
+		// convert from output color space to BGR
+		cvtColor(outputImage, matu, COLOR_YCrCb2BGR);
+	    try {
+        imwrite("u.jpeg", matu, compression_params);
+    }
+    catch (runtime_error& ex) {
+        fprintf(stderr, "Exception converting image to JPEG format: %s\n", ex.what());
+        break;
+    }
+
+    fprintf(stdout, "Saved JPEG file with u data.\n");
+	cout<<"Arquivo u Salvo"<<endl;
+	//break;
+		//imshow("Cr - [C]hroma [r]ed (3-Channels)", outputImage);
+		
+			// show single-channel image
+			//outputImage = channel[1];
+			//imshow("Cr - [C]hroma [r]ed (1-Channel)", outputImage);
+
+//v
+
+
+		aux[0] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 127.5;
+		aux[1] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 127.5;
+		aux[2] = Mat::ones(inputImage.rows, inputImage.cols, CV_8UC1) * 1;
+		aux[2] = channel[2];  
+		// merge the channels back together
+		merge(aux, 3, outputImage);
+		// convert from output color space to BGR
+		cvtColor(outputImage, matv, COLOR_YCrCb2BGR);
+		//imshow("Cb - [C]hroma [b]lue (3-Channels)", outputImage);
+		
+			// show single-channel image
+			//outputImage = channel[2];
+			//imshow("Cb - [C]hroma [b]lue (1-Channel)", outputImage);
+	    try {
+        imwrite("v.jpeg", matv, compression_params);
+    }
+    catch (runtime_error& ex) {
+        fprintf(stderr, "Exception converting image to JPEG format: %s\n", ex.what());
+        break;
+    }
+
+    fprintf(stdout, "Saved JPEG file with v data.\n");
+	cout<<"Arquivo v Salvo"<<endl;
+
+	break;
     }
     glutPostRedisplay();
 }
@@ -119,13 +237,11 @@ void display(){
 
 //*****************************************************************************
 void exitprog(void){
-	// Libera a memória referente ao framebuffer.
+	// Libera a memória referente ao framebuffer e ao buffer auxiliar.
 	if (!FBptr)
 		delete [] FBptr;
 	if(!IMGptr)
 		delete [] IMGptr;
-	//if(!tmp)
-	//	delete [] tmp;
 	std::clog << "Exiting...\n";
 }
 

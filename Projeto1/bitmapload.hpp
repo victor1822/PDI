@@ -11,7 +11,7 @@ using namespace cv;
 using namespace std;
 
 void createAlphaMat(Mat &mat)
-{	
+{	//carrega buffer da imagem para região da memória apontada por um array do tipo c2::mat<uchar>
 
     for (int i = 0; i < IMAGE_WIDTH; ++i) {
         for (int j = 0; j < IMAGE_HEIGHT; ++j) {
@@ -28,10 +28,12 @@ void createAlphaMat(Mat &mat)
 
 }
 
-unsigned char* readBMP(){
+
+unsigned char* readBMP(){ //salva os valores da imagem para um ponteiro de char
     Mat image;
 	int offset;
-    image = imread( "img1.bmp", 1 );
+    image = imread( "img3.png", 1 );
+	//image = imread("img2.png",1);
 unsigned char*data = new unsigned char[4*IMAGE_WIDTH*IMAGE_HEIGHT];
 		
   for (int i = 0; i < IMAGE_WIDTH; ++i) {
@@ -50,5 +52,6 @@ unsigned char*data = new unsigned char[4*IMAGE_WIDTH*IMAGE_HEIGHT];
     }
 	return (unsigned char*)data;
 }
+
 
 #endif // BITMAPLOAD_HPP_INCLUDED

@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include <vector>
 
+
+
+
 //-----------------------------------------------------------------------------
 
 
@@ -24,24 +27,24 @@ void MyGlDraw(void)
 	//*************************************************************************
 /**Cores para testes*/
 
-switch(option){
+switch(option){ //alterna modo de exibição da imagem
 case 0:
-DrawTela();
+DrawTela();//imprime imagem normal
 break;
 case 1:
-DrawTelaN();
+DrawTelaN();//imprime a imagem negativa
 break;
 case 2:
-DrawTelaGS();
+DrawTelaGS();//imprime a imagem em escala de cinza
 break;
 case 3:
-DrawTelaR();
+DrawTelaR();//imprime a imagem só com o canal red ativo
 break;
 case 4:
-DrawTelaG();
+DrawTelaG();//imrpime a imagem só com o canal green ativo
 break;
 case 5:
-DrawTelaB();
+DrawTelaB();//imprime a imagem só com o canal blue ativo
 }
 
 }

@@ -3,11 +3,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include "definitions.h"
+#include <vector>
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
+
+//Mat inputImage, outputImage, channel[3];
+//std::string colorSpace;
 
 using namespace std;
 //subrotinas simples
@@ -24,7 +28,7 @@ if(a<=b)return a;
 else return b;
 }
 
-void ab(int v){
+void ab(int v){ //AJUSTA BRILHO
 int tmp=0;
 int x,y,offset;
 for(x=0;x<IMAGE_WIDTH;x++){
@@ -39,7 +43,24 @@ IMGptr[offset+3]=(unsigned char)tmp;
 }
 }
 
-void ajusta_negativo(unsigned char v){
+void abm(int v){ //AJUSTA BRILHO MULTIPLICATIVO
+double tmp=0;
+int x,y,offset;
+for(x=0;x<IMAGE_WIDTH;x++){
+for(y=0;y<IMAGE_HEIGHT;y++){
+int offset = 4*x + 4*y*IMAGE_WIDTH;
+if(v>0)tmp=FBptr[offset+3]*2;
+if(v<0)tmp=FBptr[offset+3]/2;
+if (tmp>255) tmp=255;
+if (tmp<0) tmp=0;
+IMGptr[offset+3]=(unsigned char)tmp;
+
+}
+}
+}
+
+
+void ajusta_negativo(unsigned char v){//ALTERA BRILHO DA IMAGEM NO FRAMEBUFFER
 unsigned char tmp=0;
 int x,y,offset;
 for(x=0;x<IMAGE_WIDTH;x++){
@@ -64,7 +85,7 @@ IMGptr[offset+2]=tmp;
 }
 
 
-//
+
 //========================= classes ============================
 class cor{
 private:
@@ -111,24 +132,6 @@ int get_x(){return x;}
 int get_y(){return y;}
 };
 
-//NÃO SEI SE VAI SER UTIL
-
-class pixel{
-private:
-    ponto p;
-    cor c;
-public:
-    pixel();
-    ~pixel();
-    cor get_color(){return c;}
-    void set_color(cor a){
-    c=a;
-    }
-    ponto get_ponto(){return p;}
-    void set_ponto(ponto q){
-        p=q;
-        }
-};
 
 //==============================================================
 
@@ -162,22 +165,6 @@ double red =  IMGptr[offset2+0];
 double green = IMGptr[offset2+1];
 double blue =  IMGptr[offset2+2];
 double alfa = IMGptr[offset2+3];
-//cout<<endl<<red<<","<<green<<","<<blue;
-//_y=_y*(-1);
-//_y=_y+511;//espelhando a imagem
-//if(_x>27) _x=_x-28;
-//else	_x=_x+483;
-//NovaCorNaTela = CorDoObjeto * AlfaDoObjeto + CorAntigaNaTele * (1-AlfaDoObjeto)
-//red = red+(red*(255-alfa))/255;
-//green = green+(green*(255-alfa))/255;//ajuste de brilho a partir do alfa
-//blue = blue+(blue*(255-alfa))/255;
-
-//if(red>255)red=255;
-//if(red<0)red=0;
-//if(green>255)green=255;
-//if(green<0)green=0;
-//if(blue>255)blue=255;
-//if(blue<0)blue=0;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = (unsigned char)red;
@@ -192,14 +179,7 @@ int _x = p0.get_x();
 int _y = p0.get_y();
 int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
 unsigned char red =  IMGptr[offset2+0];
-//unsigned char green = IMGptr[offset2+1];
-//unsigned char blue =  IMGptr[offset2+2];
 unsigned char alfa = IMGptr[offset2+3];
-//cout<<endl<<red<<","<<green<<","<<blue;
-//_y=_y*(-1);
-//_y=_y+511;//espelhando a imagem
-//if(_x>27) _x=_x-28;
-//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = red;
@@ -213,15 +193,9 @@ void PutPixelGreen(ponto p0)
 int _x = p0.get_x();
 int _y = p0.get_y();
 int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
-//unsigned char red =  IMGptr[offset2+0];
+
 unsigned char green = IMGptr[offset2+1];
-//unsigned char blue =  IMGptr[offset2+2];
 unsigned char alfa = IMGptr[offset2+3];
-//cout<<endl<<red<<","<<green<<","<<blue;
-//_y=_y*(-1);
-//_y=_y+511;//espelhando a imagem
-//if(_x>27) _x=_x-28;
-//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = 0;
@@ -235,15 +209,9 @@ void PutPixelBlue(ponto p0)
 int _x = p0.get_x();
 int _y = p0.get_y();
 int offset2 = ni*_y+ni*_x*IMAGE_WIDTH;
-//unsigned char red =  IMGptr[offset2+0];
-//unsigned char green = IMGptr[offset2+1];
+
 unsigned char blue =  IMGptr[offset2+2];
 unsigned char alfa = IMGptr[offset2+3];
-//cout<<endl<<red<<","<<green<<","<<blue;
-//_y=_y*(-1);
-//_y=_y+511;//espelhando a imagem
-//if(_x>27) _x=_x-28;
-//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = 0;
@@ -263,11 +231,6 @@ unsigned char green = IMGptr[offset2+1];
 unsigned char blue =  IMGptr[offset2+2];
 unsigned char alfa = IMGptr[offset2+3];
 unsigned char gs=floor((float)(red+green+blue)/3);
-//cout<<endl<<red<<","<<green<<","<<blue;
-//_y=_y*(-1);
-//_y=_y+511;//espelhando a imagem
-//if(_x>27) _x=_x-28;
-//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = gs;
@@ -285,11 +248,6 @@ unsigned char red =   255 - IMGptr[offset2+0];
 unsigned char green = 255 - IMGptr[offset2+1];
 unsigned char blue =  255 - IMGptr[offset2+2];
 unsigned char alfa = IMGptr[offset2+3];
-//cout<<endl<<red<<","<<green<<","<<blue;
-//_y=_y*(-1);
-//_y=_y+511;//espelhando a imagem
-//if(_x>27) _x=_x-28;
-//else	_x=_x+483;
 
 int offset = 4*_x + 4*_y*IMAGE_WIDTH;
 FBptr[offset + 0] = red;
