@@ -38,7 +38,7 @@ tmp=FBptr[offset+3]+v;
 if (tmp>255) tmp=255;
 if (tmp<0) tmp=0;
 IMGptr[offset+3]=(unsigned char)tmp;
-
+//FBptr[offset+3]=(unsigned char)tmp;
 }
 }
 }
@@ -54,7 +54,7 @@ if(v<0)tmp=FBptr[offset+3]/2;
 if (tmp>255) tmp=255;
 if (tmp<0) tmp=0;
 IMGptr[offset+3]=(unsigned char)tmp;
-
+//FBptr[offset+3]=(unsigned char)tmp;
 }
 }
 }

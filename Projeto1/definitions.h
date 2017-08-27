@@ -6,7 +6,7 @@
 
 unsigned char * FBptr;
 unsigned char * IMGptr;
-
+//int alfa=1; int beta=0; Brilho e contraste
 int option = 0;
 
 
